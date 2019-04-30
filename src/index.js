@@ -1,4 +1,5 @@
 import p5 from 'p5';
+import Background from './components/Background';
 
 const game = p => {
     let canvas;
@@ -7,10 +8,11 @@ const game = p => {
 
     p.setup = () => {
         canvas = p.createCanvas(p.windowWidth, p.windowHeight);
+        Background.setup(p);
     };
 
     p.draw = () => {
-
+        Background.draw();
     };
 
     p.windowResized = () => p.resizeCanvas(p.windowWidth, p.windowHeight);
