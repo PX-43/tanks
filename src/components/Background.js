@@ -1,5 +1,5 @@
 let bkgInstance = null;
-const worldSize = 2000;
+const worldSize = 1000;
 let p5 = null;
 let currentWidth = 0;
 let currentHeight = 0;
@@ -7,6 +7,7 @@ let scrollX = 0;
 let scrollY = 0;
 let xv = 0;
 let yv = 0;
+let speed = 1;
 
 const detectEdge = () => {
     const size = worldSize / 2;
@@ -29,6 +30,31 @@ const detectEdge = () => {
     if (scrollY < -1 * size + currentHeight / 2) {
         scrollY = -1 * size + currentHeight / 2;
         yv = 10;
+    }
+};
+
+const checkForKeyDown = () => {
+
+    if(!p5) return;
+
+    if (p5.keyIsDown(65)) {
+        xv -= speed;
+        //checkDash(-dashSpeed, 0);
+    }
+
+    if (p5.keyIsDown(68)) {
+        xv += speed;
+        //checkDash(dashSpeed, 0);
+    }
+
+    if (p5.keyIsDown(87)) {
+        yv -= speed;
+        //checkDash(0, -dashSpeed);
+    }
+
+    if (p5.keyIsDown(83)) {
+        yv += speed;
+        //checkDash(0, dashSpeed);
     }
 };
 
@@ -76,8 +102,8 @@ class background {
         p5.line(leftWall, bottomWall, leftWall, topWall);
         p5.line(rightWall, bottomWall, rightWall, topWall);
 
-        currentWidth = 100 - Math.abs(yv * 2) + Math.abs(xv * 1.5);
-        currentHeight = 100 - Math.abs(xv * 2) + Math.abs(yv * 1.5);
+        currentWidth = Math.abs(yv * 2) + Math.abs(xv * 1.5);
+        currentHeight = Math.abs(xv * 2) + Math.abs(yv * 1.5);
 
         xv = xv * 0.9;
         yv = yv * 0.9;
@@ -85,7 +111,9 @@ class background {
         scrollX += xv;
         scrollY += yv;
 
+
         detectEdge();
+        checkForKeyDown();
     }
 }
 
@@ -94,5 +122,7 @@ let bkg = null;
 const Background = {
     setup: p5 => bkg = new background(p5),
     draw: () => bkg.draw(),
+    get scrollX() {return scrollX;},
+    get scrollY() {return scrollY;},
 };
 export default Background;
