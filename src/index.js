@@ -1,4 +1,4 @@
-import p5 from 'p5';
+import P5 from 'p5';
 import Background from './components/Background';
 import Tank from './components/Tank';
 
@@ -11,7 +11,7 @@ const game = p => {
     p.setup = () => {
         canvas = p.createCanvas(p.windowWidth, p.windowHeight);
         Background.setup(p);
-        tank = new Tank(p, () => Background.scrollX, () => Background.scrollY);
+        tank = new Tank(p);
     };
 
     p.draw = () => {
@@ -24,9 +24,10 @@ const game = p => {
     p.keyPressed = () => {};
 
     p.mouseClicked = () => {
+        Background.mouseClicked();
         tank.mouseClicked();
     }
 
 };
 
-new p5(game);
+new P5(game);

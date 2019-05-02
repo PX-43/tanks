@@ -1,35 +1,52 @@
-let bkgInstance = null;
-const worldSize = 1000;
 let p5 = null;
-let currentWidth = 0;
-let currentHeight = 0;
+const worldSize = 2000;
+
 let scrollX = 0;
 let scrollY = 0;
 let xv = 0;
 let yv = 0;
 let speed = 1;
+let dashCooldown = 40;
+let dashSpeed = 20;
+let angle = 0;
+let x = 0;
+let y = 0;
+let lerpxv = 0;
+let lerpyv = 0;
+
+const edgeOffset = 50;
 
 const detectEdge = () => {
     const size = worldSize / 2;
 
-    if (scrollX > size - currentWidth / 2) {
-        scrollX = size - currentWidth / 2;
+    if (scrollX > size - edgeOffset) {
+        scrollX = size - edgeOffset;
         xv = -10
     }
 
-    if (scrollX < -1 * size + currentWidth / 2) {
-        scrollX = -1 * size + currentWidth / 2;
+    if (scrollX < -1 * size + edgeOffset) {
+        scrollX = -1 * size + edgeOffset;
         xv = 10;
     }
 
-    if (scrollY > size - currentHeight / 2) {
-        scrollY = size - currentHeight / 2;
+    if (scrollY > size - edgeOffset) {
+        scrollY = size - edgeOffset;
         yv = -10;
     }
 
-    if (scrollY < -1 * size + currentHeight / 2) {
-        scrollY = -1 * size + currentHeight / 2;
+    if (scrollY < -1 * size + edgeOffset) {
+        scrollY = -1 * size + edgeOffset;
         yv = 10;
+    }
+};
+
+const checkDash = (x_increment, y_increment) =>{
+
+    if (p5.keyIsDown(32) && dashCooldown < 0) {
+        dashCooldown = 40;
+
+        xv += x_increment;
+        yv += y_increment;
     }
 };
 
@@ -39,90 +56,95 @@ const checkForKeyDown = () => {
 
     if (p5.keyIsDown(65)) {
         xv -= speed;
-        //checkDash(-dashSpeed, 0);
+        checkDash(-dashSpeed, 0);
     }
 
     if (p5.keyIsDown(68)) {
         xv += speed;
-        //checkDash(dashSpeed, 0);
+        checkDash(dashSpeed, 0);
     }
 
     if (p5.keyIsDown(87)) {
         yv -= speed;
-        //checkDash(0, -dashSpeed);
+        checkDash(0, -dashSpeed);
     }
 
     if (p5.keyIsDown(83)) {
         yv += speed;
-        //checkDash(0, dashSpeed);
+        checkDash(0, dashSpeed);
     }
 };
 
-class background {
+const mouseClicked = () => {
+    xv += Math.cos(angle - Math.PI) * 4;
+    yv += Math.sin(angle * -1) * 4;
+};
 
-    constructor(p){
-        if (!bkgInstance)
-            bkgInstance = this;
+const draw = () => {
+    p5.background(255);
+    p5.stroke(240);
+    p5.strokeWeight(7);
+    p5.noFill();
 
-        p5 = p;
-        return bkgInstance;
+    lerpxv += (xv - lerpxv) / 5;
+    lerpyv += (yv - lerpyv) / 5;
+
+    x = p5.width / 2 + lerpxv * 5;
+    y = p5.height / 2 + lerpyv * 5;
+
+    angle = Math.atan2(p5.mouseY - y, p5.mouseX - x);
+
+    const distance = Math.floor(p5.height / 8);
+    const distanceHalf = distance / 2;
+
+    const initXPos = (0 - scrollX) % distance;
+    const initYPos = (0 - scrollY) % distance;
+
+    for(let xi = p5.height / distanceHalf; xi > 0; xi--) {
+        p5.line(0, (((distance) * xi) - distance) + initYPos, p5.width, (((distance) * xi) - distance) + initYPos);
     }
 
-
-
-    draw(){
-        p5.background(255);
-        p5.stroke(245);
-        p5.strokeWeight(7);
-        p5.noFill();
-
-        const distance = Math.floor(p5.height / 8);
-        const distanceHalf = distance / 2;
-
-        const initXPos = (0 - scrollX) % distance;
-        const initYPos = (0 - scrollY) % distance;
-
-        for(let x = p5.height / distanceHalf; x > 0; x--) {
-            p5.line(0, (((distance) * x) - distance) + initYPos, p5.width, (((distance) * x) - distance) + initYPos);
-        }
-
-        for(let y = p5.width / distanceHalf; y > 0; y--) {
-            p5.line(((distance * y) - distance) + initXPos, 0, ((distance * y) - distance) + initXPos, p5.height);
-        }
-
-        p5.stroke(255, 0, 0, 65);
-
-        let leftWall = -worldSize / 2 - scrollX + p5.width / 2;
-        let rightWall = worldSize / 2 - scrollX + p5.width / 2;
-        let topWall = -worldSize / 2 - scrollY + p5.height / 2;
-        let bottomWall = worldSize / 2 - scrollY + p5.height / 2;
-
-        p5.line(leftWall, bottomWall, rightWall, bottomWall);
-        p5.line(leftWall, topWall, rightWall, topWall);
-        p5.line(leftWall, bottomWall, leftWall, topWall);
-        p5.line(rightWall, bottomWall, rightWall, topWall);
-
-        currentWidth = Math.abs(yv * 2) + Math.abs(xv * 1.5);
-        currentHeight = Math.abs(xv * 2) + Math.abs(yv * 1.5);
-
-        xv = xv * 0.9;
-        yv = yv * 0.9;
-
-        scrollX += xv;
-        scrollY += yv;
-
-
-        detectEdge();
-        checkForKeyDown();
+    for(let yi = p5.width / distanceHalf; yi > 0; yi--) {
+        p5.line(((distance * yi) - distance) + initXPos, 0, ((distance * yi) - distance) + initXPos, p5.height);
     }
-}
 
-let bkg = null;
+    let leftWall = -worldSize / 2 - scrollX + p5.width / 2;
+    let rightWall = worldSize / 2 - scrollX + p5.width / 2;
+    let topWall = -worldSize / 2 - scrollY + p5.height / 2;
+    let bottomWall = worldSize / 2 - scrollY + p5.height / 2;
+
+    p5.stroke(255, 0, 0, 65);
+    p5.line(leftWall, bottomWall, rightWall, bottomWall);
+    p5.line(leftWall, topWall, rightWall, topWall);
+    p5.line(leftWall, bottomWall, leftWall, topWall);
+    p5.line(rightWall, bottomWall, rightWall, topWall);
+
+    xv = xv * 0.9;
+    yv = yv * 0.9;
+
+    scrollX += xv;
+    scrollY += yv;
+
+    detectEdge();
+    checkForKeyDown();
+    dashCooldown -= 1;
+};
+
 
 const Background = {
-    setup: p5 => bkg = new background(p5),
-    draw: () => bkg.draw(),
+    setup: p => {
+        p5 = p;
+        x = p5.width / 2;
+        y = p5.height / 2;
+    },
+    draw: () => draw(),
+    mouseClicked: () => mouseClicked(),
     get scrollX() {return scrollX;},
     get scrollY() {return scrollY;},
+    get xv() {return xv;},
+    get yv() {return yv;},
+    get angle() {return angle;},
+    get x() {return x;},
+    get y() {return y;},
 };
 export default Background;

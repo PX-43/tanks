@@ -1,14 +1,14 @@
+import Background from './Background';
+
 let p5 = null;
 
 class Bullet {
 
-    constructor(p, x, y, angle, bulletDi, gunWidth, getScrollX, getScrollY, parentId) {
+    constructor(p, x, y, angle, bulletDi, gunWidth, parentId) {
         p5 = p;
         this.angle = angle;
-        this.getScrollX = getScrollX;
-        this.getScrollY = getScrollY;
-        this.initx = x + this.getScrollX();
-        this.inity = y + this.getScrollY();
+        this.initx = x + Background.scrollX;
+        this.inity = y + Background.scrollY;
         this.bulletRadius = gunWidth;
         this.mustRemoveBullet = false;
         this.bulletVelocity = 20;
@@ -29,8 +29,8 @@ class Bullet {
             this.currentBulletDi -= 1
         }
 
-        const bulletXPos = (this.initx + Math.cos(this.angle) * this.bulletRadius) - this.getScrollX();
-        const bulletYPos = (this.inity + Math.sin(this.angle) * this.bulletRadius) - this.getScrollY();
+        const bulletXPos = (this.initx + Math.cos(this.angle) * this.bulletRadius) - Background.scrollX;
+        const bulletYPos = (this.inity + Math.sin(this.angle) * this.bulletRadius) - Background.scrollY;
         this.mustRemoveBullet = this.detectEdgeBullet(bulletXPos, bulletYPos);
 
         p5.stroke(0, 110, 225);
